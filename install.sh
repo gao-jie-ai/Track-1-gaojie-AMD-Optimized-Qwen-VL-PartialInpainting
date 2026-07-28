@@ -26,11 +26,10 @@ fi
 cd "${COMFY_ROOT}"
 
 echo -e "\n==================== 3. 安装ROCm7.2配套PyTorch及基础依赖 ===================="
-pip uninstall torch torchvision torchaudio -y
 # ROCm7.2专用torch
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm7.2
-pip install -r requirements.txt
-pip install gradio
+pip install torch torchvision torchaudio --index-url https://mirrors.nju.edu.cn/pytorch/whl/rocm7.2
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install gradio==6.20.0 -i https://pypi.tuna.tsinghua.edu.cn/simple/
 pip install modelscope
 
 echo -e "\n==================== 4. 下载大模型（断点续传+自动重试） ===================="
@@ -105,7 +104,7 @@ for repo in "${plugins[@]}"; do
     fi
 done
 
-# 批量安装所有插件依赖，使用清华pip源加速
+# 批量安装所有插件依赖
 find . -name "requirements.txt" -exec python3 -m pip install -r {} \;
 echo "✅ 所有插件依赖安装完成"
 

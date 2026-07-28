@@ -12,7 +12,7 @@
 - [Project Structure](#project-structure)
 - [Quick Start Guide](#quick-start-guide)
 - [User Operation Tutorial](#user-operation-tutorial)
-- [Function Modes Introduction](#5-built-in-function-modes)
+- [Function Modes Introduction](#4-built-in-function-modes)
 - [Advanced Parameter Explanation](#advanced-parameter-explanation)
 - [License](#license)
 
@@ -20,7 +20,7 @@
 
 ## Project Overview
 This project integrates **Qwen-Image-Edit 2511**, RMBG background removal, wrapped into an independent Gradio WebUI based on ComfyUI backend.
-Common application scenarios: clothing replacement, object swap, hair color/style change, object erasure, hand defect repair.
+Common application scenarios: clothing replacement, object swap, hair color/style change, object erasure.
 Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memory fragmentation issue, reduced VRAM occupation by 50% compared with original model, and accelerated average inference speed from 65s to 20s.
 
 ## Key Features & Performance Optimization
@@ -55,7 +55,7 @@ Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memo
 | Storage | 60GB Free SSD | 100GB+ NVMe SSD |
 | Python Version | 3.10 | 3.11 |
 
-> Tested Data: Single inference only consumes ~26.5GB VRAM; all models can be fully cached within 51.5GB total video memory.
+> Tested Data: Single inference only consumes ~30GB VRAM; all models can be fully cached within 48GB total video memory.
 
 ## Project Structure
 ```
@@ -110,19 +110,18 @@ After execution, public network link will be output for external device access.
 ```
 1. Upload your original image to the left upload box
 2. Mask generation: Use white brush to paint target area directly
-3. Upload reference image (required for swap mode; skip for erase/repair mode)
+3. Upload reference image (required for swap mode; skip for erase mode)
 4. Fill edit prompt or click one-click template button
 5. Tune advanced parameters (default values work for most scenarios)
 6. Click `Start Generate` button
 
-## 5 template
+## 4 template
 | Mode | Source Image | Mask Required | Reference Image | Usage Scenario |
 |------|:------------:|:-------------:|:---------------:|----------------|
 | 🔄 Object Swap | ✅ | ✅ | ✅ | Replace furniture, decorations, accessories |
 | 👗 Garment Replacement | ✅ | ✅ | ✅ | Change clothes, dresses, suits of characters |
 | 💇 Hair Modification | ✅ | ✅ | ✅ | Change hairstyle, hair length, hair color |
 | 🧹 Object Erase | ✅ | ✅ | ❌ | Remove redundant objects, stains, text from image |
-| ✋ Hand Detail Repair | ✅ | ✅ | ❌ | Fix distorted, malformed hands in portrait photos |
 
 > Core logic: If no reference image is uploaded, the system automatically closes reference feature injection (`to_ref=False`) to avoid white placeholder ghost artifacts.
 

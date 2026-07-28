@@ -702,12 +702,6 @@ CSS = """
     border: none !important;
     font-weight: 600 !important;
 }
-.template-btn-hand {
-    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%) !important;
-    color: #1a1a2e !important;
-    border: none !important;
-    font-weight: 600 !important;
-}
 .template-btn-hair {
     background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%) !important;
     color: #1a1a2e !important;
@@ -730,19 +724,18 @@ CSS = """
 }
 """
 
-DEFAULT_PROMPT = "去掉遮罩图物品。将原来物品替换为参考图物品，保持原图画风"
+DEFAULT_PROMPT = ""
 
 PROMPT_TEMPLATES = {
-    "物品替换": "去掉物品，替换为参考图物品",
-    "衣物替换": "将图中的衣服替换为参考图衣服",
-    "物品消除": "去掉物品",
-    "手部修复": "修复手部",
+    "物品替换": "去掉物品，替换为参考图物品，融入原图画风",
+    "衣物替换": "将图中人物的衣服替换为参考图衣服",
     "换发型发色": "修改头发区域为参考图发型和发色。只修改头发，脸型、五官、背景保持不变",
+    "物品消除": "去掉物品",
 }
 
 
 def build_ui():
-    with gr.Blocks(title="局部重绘 - Qwen-Image-Edit") as app:
+    with gr.Blocks(title="局部重绘 - AMD Optimized Partial Inpainting WebUI") as app:
 
         gr.Markdown(
             """
@@ -759,10 +752,8 @@ def build_ui():
         with gr.Row(elem_classes="template-btn-row"):
             btn_replace = gr.Button("🔄 物品替换", elem_classes="template-btn-replace", scale=1)
             btn_cloth = gr.Button("👗 衣物替换", elem_classes="template-btn-cloth", scale=1)
-            btn_erase = gr.Button("🧹 物品消除", elem_classes="template-btn-erase", scale=1)
-        with gr.Row(elem_classes="template-btn-row"):
-            btn_hand = gr.Button("✋ 手部修复", elem_classes="template-btn-hand", scale=1)
             btn_hair = gr.Button("💇 换发型发色", elem_classes="template-btn-hair", scale=1)
+            btn_erase = gr.Button("🧹 物品消除", elem_classes="template-btn-erase", scale=1)
 
         with gr.Row(equal_height=True):
             with gr.Column(scale=1):
@@ -772,7 +763,7 @@ def build_ui():
                     sources=["upload"],
                     brush=gr.Brush(
                         default_size=30,
-                        colors=["rgba(255,255,255,0.9)"],
+                        colors=["rgba(255,255,255,1.0)"],
                         color_mode="fixed",
                     ),
                     layers=True,
@@ -780,7 +771,7 @@ def build_ui():
                 )
 
                 ref_file = gr.File(
-                    label="🔍 步骤 2：上传参考物体图（可选，物品消除/手部修复无需上传）",
+                    label="🔍 步骤 2：上传参考物体图（可选，物品消除无需上传）",
                     file_types=["image"],
                     type="filepath",
                     elem_id="ref_file_upload",
@@ -849,11 +840,10 @@ def build_ui():
             ### 💡 使用说明
             | 模式 | 主图 | 参考图 | 说明 |
             |------|------|--------|------|
-            | 🔄 **物品替换** | ✅ 上传 + 白色遮罩 | ✅ 需上传替换物 | 遮罩区域替换为参考图物体 |
-            | 👗 **衣物替换** | ✅ 上传 + 白色遮罩 | ✅ 需上传衣服图 | 将衣服替换为参考图款式 |
-            | 🧹 **物品消除** | ✅ 上传 + 白色遮罩 | ⭕ 无需上传 | 直接消除遮罩区域物体 |
-            | ✋ **手部修复** | ✅ 上传 + 遮罩手部 | ⭕ 无需上传 | 修复手指比例和数量 |
+            | 🔄 **物品替换** | ✅ 上传 + 遮罩物品 | ✅ 需上传替换物 | 遮罩区域替换为参考图物体 |
+            | 👗 **衣物替换** | ✅ 上传 + 遮罩衣物 | ✅ 需上传衣服图 | 将衣服替换为参考图款式 |
             | 💇 **换发型发色** | ✅ 上传 + 遮罩头发 | ✅ 需上传参考发型 | 仅换发型发色，脸和五官不变 |
+            | 🧹 **物品消除** | ✅ 上传 + 遮罩物品 | ⭕ 无需上传 | 直接消除遮罩区域物体 |
             """
         )
 
@@ -866,10 +856,9 @@ def build_ui():
 
         btn_replace.click(fn=lambda: set_prompt("物品替换"), inputs=[], outputs=[prompt_box])
         btn_cloth.click(fn=lambda: set_prompt("衣物替换"), inputs=[], outputs=[prompt_box])
-        btn_erase.click(fn=lambda: set_prompt("物品消除"), inputs=[], outputs=[prompt_box])
-        btn_hand.click(fn=lambda: set_prompt("手部修复"), inputs=[], outputs=[prompt_box])
         btn_hair.click(fn=lambda: set_prompt("换发型发色"), inputs=[], outputs=[prompt_box])
-
+        btn_erase.click(fn=lambda: set_prompt("物品消除"), inputs=[], outputs=[prompt_box])
+        
         generate_btn.click(
             fn=process,
             inputs=[
