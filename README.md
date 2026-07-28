@@ -1,4 +1,3 @@
-```markdown
 # QwenSAM Local Image Editor
 ## AMD Optimized Partial Inpainting WebUI
 
