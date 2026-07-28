@@ -70,7 +70,7 @@ QwenSAM-LocalImageEdit/
 ## Quick Start Guide
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/gao-jie-ai/Track-1-gaojie-AMD-Optimized-Qwen-VL-PartialInpainting.git
+git clone http://github.com/gao-jie-ai/Track-1-gaojie-AMD-Optimized-Qwen-VL-PartialInpainting.git
 cd Track-1-gaojie-AMD-Optimized-Qwen-VL-PartialInpainting
 ```
 
