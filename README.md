@@ -1,4 +1,4 @@
-# QwenSAM Local Image Editor
+# Qwen Local Image Editor
 ## AMD Optimized Partial Inpainting WebUI
 
 > Solo Developer: gaojie
@@ -7,7 +7,6 @@
 
 ## Table of Contents
 - [Project Overview](#project-overview)
-- [Core Models](#core-models--credits)
 - [Key Features & Performance Optimization](#key-features--performance-optimization)
 - [Hardware & Software Requirements](#hardware--software-requirements)
 - [Project Structure](#project-structure)
@@ -40,7 +39,6 @@ Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memo
 - Mask expansion & blur node for natural edge fusion between modified & original area
 - Auto crop masked region to minimize re-drawing area, balance speed & picture quality
 - Auto switch reference feature injection logic: disable ref mode when no reference image uploaded to avoid ghost artifacts
-- SAM3.1 auto segmentation: generate object mask by text prompt without manual painting
 
 ### 🖥 Deployment & Experience
 - Pure one-click installation script, auto pull ComfyUI, install dependencies & move model files
@@ -73,7 +71,7 @@ QwenSAM-LocalImageEdit/
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/gao-jie-ai/Track-1-gaojie-AMD-Optimized-Qwen-VL-PartialInpainting.git
-cd QwenSAM-LocalImageEdit
+cd Track-1-gaojie-AMD-Optimized-Qwen-VL-PartialInpainting
 ```
 
 ### 2. One-Click Environment Installation
@@ -97,6 +95,7 @@ Default access address: http://127.0.0.1:7860
 All devices in LAN can access via your host IP: `http://[Your-IP]:7860`
 
 ### 4. Remote Access (Intranet Penetration)
+Open a new window
 ```bash
 chmod +x tunnel.sh
 ./tunnel.sh
