@@ -1,7 +1,6 @@
 # AMD-Optimized-Qwen-VL-PartialInpainting
 ## AMD Optimized Partial Inpainting WebUI
 
-> Solo Developer: gaojie
 > Open-source local image partial re-drawing tool based on ComfyUI workflow + Gradio, optimized exclusively for AMD ROCm GPU.
 > only modify masked area while keeping the rest of the original image completely unchanged. One-click deployment, out-of-box usage.
 
@@ -51,7 +50,7 @@ Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memo
 | Component | Minimum Requirement | Recommended Configuration |
 |-----------|--------------------|-----------------------|
 | AMD GPU VRAM | 48GB (ROCm Enabled) | 48GB+ AMD Radeon GPU |
-| System RAM | 32GB | 64GB DDR4/DDR5 |
+| System RAM | 32GB | 64GB |
 | Storage | 60GB | 100GB |
 | Python Version | 3.10 | 3.12 |
 
@@ -61,10 +60,10 @@ Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memo
 ```
 AMD-Optimized-Qwen-VL-PartialInpainting/
 ├── Radeon-Cloud-User Guide/              # hackathon def
+├── docs/          # Project Introduction Document
 ├── images/             # Test image collection
 ├── app.py              # Main service entry
 ├── install.sh          # One-click environment deployment script
-├── project.pdf          # Project Introduction Document
 ├── tunnel.sh           # Intranet penetration script for remote access
 ├── workflow.json       # Encapsulated ComfyUI full workflow template
 └── README.md           # Project documentation
