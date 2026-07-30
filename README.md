@@ -1,4 +1,4 @@
-# Qwen Local Image Editor
+# AMD-Optimized-Qwen-VL-PartialInpainting
 ## AMD Optimized Partial Inpainting WebUI
 
 > Solo Developer: gaojie
@@ -20,20 +20,20 @@
 
 ## Project Overview
 This project integrates **Qwen-Image-Edit 2511**, RMBG background removal, wrapped into an independent Gradio WebUI based on ComfyUI backend.
-Common application scenarios: clothing replacement, object swap, hair color/style change, object erasure.
-Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memory fragmentation issue, reduced VRAM occupation by 50% compared with original model, and accelerated average inference speed from 65s to 20s.
+Common application scenarios: stylized local redrawing, clothing replacement, text-guided local generation, object erasure.
+Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memory fragmentation issue, reduced VRAM occupation by 40% compared with original model, and accelerated average inference speed from 85s to 25s.
 
 ## Key Features & Performance Optimization
 ### ⚡ Performance Upgrade
-- Original average inference time: 80s | Optimized average inference time: 15s
-- FP8 model quantization cuts base VRAM usage by 50%
+- Original average inference time: 85s | Optimized average inference time: 25s
+- FP8 model quantization cuts base VRAM usage by 40%
 - Lightning LoRA reduces sampling steps to 4 without obvious quality loss
 
 ### 🧠 AMD VRAM Optimization (Core Advantage)
 - Custom ROCm memory allocation environment variables to avoid VRAM fragmentation
 - Preload all models on first warm-up run, no repeated model loading during subsequent inference
 - Strict model cache limit, automatic tensor & garbage collection after each generation
-- Stable runtime VRAM: Idle ~30GB, peak inference ~35GB, fully compatible with AMD 48GB GPU
+- Stable runtime VRAM: Idle ~30GB, peak inference ~36GB, fully compatible with AMD 48GB GPU
 
 ### 🎨 Image Editing Capabilities
 - Mask expansion & blur node for natural edge fusion between modified & original area
@@ -49,19 +49,22 @@ Fully optimized memory allocation strategy for AMD Radeon GPU, solved video memo
 ## Hardware & Software Requirements
 ### Minimum & Recommended Specs
 | Component | Minimum Requirement | Recommended Configuration |
-|-----------|---------------------|---------------------------|
+|-----------|--------------------|-----------------------|
 | AMD GPU VRAM | 48GB (ROCm Enabled) | 48GB+ AMD Radeon GPU |
 | System RAM | 32GB | 64GB DDR4/DDR5 |
-| Storage | 60GB Free SSD | 100GB+ NVMe SSD |
-| Python Version | 3.10 | 3.11 |
+| Storage | 60GB | 100GB |
+| Python Version | 3.10 | 3.12 |
 
-> Tested Data: Single inference only consumes ~30GB VRAM; all models can be fully cached within 48GB total video memory.
+> Tested Data: Single inference only consumes ~36GB VRAM; all models can be fully cached within 48GB total video memory.
 
 ## Project Structure
 ```
-QwenSAM-LocalImageEdit/
-├── app.py              # Main Gradio service entry
+AMD-Optimized-Qwen-VL-PartialInpainting/
+├── Radeon-Cloud-User Guide/              # hackathon def
+├── images/             # Test image collection
+├── app.py              # Main service entry
 ├── install.sh          # One-click environment deployment script
+├── project.pdf          # Project Introduction Document
 ├── tunnel.sh           # Intranet penetration script for remote access
 ├── workflow.json       # Encapsulated ComfyUI full workflow template
 └── README.md           # Project documentation
@@ -118,9 +121,9 @@ After execution, public network link will be output for external device access.
 ## 4 template
 | Mode | Source Image | Mask Required | Reference Image | Usage Scenario |
 |------|:------------:|:-------------:|:---------------:|----------------|
-| 🔄 Object Swap | ✅ | ✅ | ✅ | Replace furniture, decorations, accessories |
+| 🔄 Style-based partial redrawing | ✅ | ✅ | ✅ | Optional  Replace the masked area with a certain artistic style (such as oil painting, watercolor, cyberpunk) |
 | 👗 Garment Replacement | ✅ | ✅ | ✅ | Change clothes, dresses, suits of characters |
-| 💇 Hair Modification | ✅ | ✅ | ✅ | Change hairstyle, hair length, hair color |
+| 💇 Text-guided partial generation | ✅ | ✅ | ❌ | Generate content in the masked area based on the text description (text-to-mask-inpainting) |
 | 🧹 Object Erase | ✅ | ✅ | ❌ | Remove redundant objects, stains, text from image |
 
 > Core logic: If no reference image is uploaded, the system automatically closes reference feature injection (`to_ref=False`) to avoid white placeholder ghost artifacts.

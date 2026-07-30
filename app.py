@@ -527,15 +527,14 @@ def process(
     mask_grow: int,
     mask_blur: int,
     progress=gr.Progress(),
-) -> Tuple[Optional[np.ndarray], str]:
+) -> Optional[np.ndarray]:
     """
     主处理流程 —— 模型已在显存中，推理即时开始。
 
     返回:
-        (result_image, elapsed_str) — 生成图片 + 耗时显示字符串
+        result_image — 生成图片
     """
     result = None
-    t_start = time.time()
 
     try:
         try:
@@ -627,13 +626,8 @@ def process(
         output_images.clear()
         del output_images, history_entry, workflow
 
-        # ★ 计算耗时
-        elapsed = time.time() - t_start
-        elapsed_str = format_elapsed(elapsed)
-        logger.info(f"✅ 生图完成，总耗时: {elapsed_str}")
-
         progress(0.95, desc="完成!")
-        return result, elapsed_str
+        return result
 
     except gr.Error:
         raise
@@ -647,19 +641,6 @@ def process(
         vram_after = get_vram_info()
         if vram_after:
             logger.info(f"推理后显存: {vram_after}")
-
-
-def format_elapsed(seconds: float) -> str:
-    """将秒数格式化为可读字符串"""
-    if seconds < 1:
-        return f"⏱ {seconds * 1000:.0f} ms"
-    elif seconds < 60:
-        return f"⏱ {seconds:.1f} 秒"
-    else:
-        m = int(seconds // 60)
-        s = seconds % 60
-        return f"⏱ {m} 分 {s:.0f} 秒"
-
 
 # ---------------------------------------------------------------------------
 # Gradio UI
@@ -709,15 +690,6 @@ CSS = """
     font-weight: 600 !important;
 }
 
-/* ★ 耗时显示 */
-#elapsed_display {
-    text-align: center;
-    font-size: 1.05em;
-    font-weight: 600;
-    color: #4ade80;
-    min-height: 1.5em;
-}
-
 @media (max-width: 768px) {
     .gradio-container { padding: 8px !important; }
     #generate_btn { width: 100% !important; }
@@ -727,9 +699,9 @@ CSS = """
 DEFAULT_PROMPT = ""
 
 PROMPT_TEMPLATES = {
-    "物品替换": "去掉物品，替换为参考图物品，融入原图画风",
+    "风格化局部重绘": "替换为油画风格",
     "衣物替换": "将图中人物的衣服替换为参考图衣服",
-    "换发型发色": "修改头发区域为参考图发型和发色。只修改头发，脸型、五官、背景保持不变",
+    "文本引导局部生成": "生成",
     "物品消除": "去掉物品",
 }
 
@@ -742,17 +714,17 @@ def build_ui():
             # 🎨 局部重绘 (Inpainting)
 
             基于 **Qwen-Image-Edit-2511** + **LoRA Lightning 4步** |
-            遮罩区域替换，遮罩外完全保持原样 |
-            🚀 模型预热完成，即开即用
+            遮罩区域替换，遮罩外完全保持原图 |
+            🚀 模型预热完成，生成速度up↑
             """
         )
 
         # ★ 提示词模板按钮（两行）
-        gr.Markdown("### 📋 提示词模板（点击自动填入）")
+        gr.Markdown("### 📋 常用提示词模板（点击自动填入，可补充）")
         with gr.Row(elem_classes="template-btn-row"):
-            btn_replace = gr.Button("🔄 物品替换", elem_classes="template-btn-replace", scale=1)
+            btn_replace = gr.Button("🔄 风格化局部重绘", elem_classes="template-btn-replace", scale=1)
             btn_cloth = gr.Button("👗 衣物替换", elem_classes="template-btn-cloth", scale=1)
-            btn_hair = gr.Button("💇 换发型发色", elem_classes="template-btn-hair", scale=1)
+            btn_hair = gr.Button("💇 文本引导局部生成", elem_classes="template-btn-hair", scale=1)
             btn_erase = gr.Button("🧹 物品消除", elem_classes="template-btn-erase", scale=1)
 
         with gr.Row(equal_height=True):
@@ -771,7 +743,7 @@ def build_ui():
                 )
 
                 ref_file = gr.File(
-                    label="🔍 步骤 2：上传参考物体图（可选，物品消除无需上传）",
+                    label="🔍 步骤 2：上传参考物体图（可选）",
                     file_types=["image"],
                     type="filepath",
                     elem_id="ref_file_upload",
@@ -782,11 +754,6 @@ def build_ui():
                     label="✨ 生成结果",
                     type="numpy",
                     height=512,
-                )
-                # ★ 耗时显示
-                elapsed_display = gr.Markdown(
-                    "",
-                    elem_id="elapsed_display",
                 )
 
         with gr.Accordion("📝 提示词", open=True):
@@ -840,9 +807,9 @@ def build_ui():
             ### 💡 使用说明
             | 模式 | 主图 | 参考图 | 说明 |
             |------|------|--------|------|
-            | 🔄 **物品替换** | ✅ 上传 + 遮罩物品 | ✅ 需上传替换物 | 遮罩区域替换为参考图物体 |
+            | 🔄 **风格化局部重绘** | ✅ 上传 + 遮罩 | ✅ 可选 | 将遮罩区域替换为某种艺术风格（如油画、水彩、赛博朋克） |
             | 👗 **衣物替换** | ✅ 上传 + 遮罩衣物 | ✅ 需上传衣服图 | 将衣服替换为参考图款式 |
-            | 💇 **换发型发色** | ✅ 上传 + 遮罩头发 | ✅ 需上传参考发型 | 仅换发型发色，脸和五官不变 |
+            | 💇 **文本引导局部生成** | ✅ 上传 + 遮罩  | ⭕ 无需上传 | 在遮罩区域根据文字描述凭空生成内容（text-to-mask-inpainting） |
             | 🧹 **物品消除** | ✅ 上传 + 遮罩物品 | ⭕ 无需上传 | 直接消除遮罩区域物体 |
             """
         )
@@ -854,9 +821,9 @@ def build_ui():
         def set_prompt(template_name: str):
             return PROMPT_TEMPLATES.get(template_name, DEFAULT_PROMPT)
 
-        btn_replace.click(fn=lambda: set_prompt("物品替换"), inputs=[], outputs=[prompt_box])
+        btn_replace.click(fn=lambda: set_prompt("风格化局部重绘"), inputs=[], outputs=[prompt_box])
         btn_cloth.click(fn=lambda: set_prompt("衣物替换"), inputs=[], outputs=[prompt_box])
-        btn_hair.click(fn=lambda: set_prompt("换发型发色"), inputs=[], outputs=[prompt_box])
+        btn_hair.click(fn=lambda: set_prompt("文本引导局部生成"), inputs=[], outputs=[prompt_box])
         btn_erase.click(fn=lambda: set_prompt("物品消除"), inputs=[], outputs=[prompt_box])
         
         generate_btn.click(
@@ -866,7 +833,7 @@ def build_ui():
                 seed_input, steps_input, cfg_input, denoise_input,
                 grow_input, blur_input,
             ],
-            outputs=[output_image, elapsed_display],
+            outputs=[output_image],
         )
 
     return app
